@@ -12,6 +12,26 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+stages:
+- stage: 'Build'
+  displayName: 'Build the web app'
+  jobs:
+  - job: 'Build'
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: 'dotnet build $(buildConfiguration)'
+
+- stage: 'Publish'
+  jobs:
+  - job: 'Build'
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
